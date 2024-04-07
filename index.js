@@ -14,7 +14,7 @@ function createTwitchLink(baseUrl, timestamp, text) {
     const timestampFormatted = formatTimestamp(timestamp);
     const videoId = baseUrl.split('/').pop(); // Extract the video ID from the base URL
     const twitchUrl = `https://www.twitch.tv/videos/${videoId}?t=${timestampFormatted}`;
-    return `[${text}](${twitchUrl})`;
+    return `${timestamp} - [${text}](${twitchUrl})`;
 }
 
 // Function to process the input list and generate masked links
@@ -37,10 +37,27 @@ function processInputList(baseUrl, input) {
 function generateMaskedLinks(baseUrl, timestampedTextList) {
     console.log("\nMasked Links for Discord:");
 
+    let output = ''; // Variable to store the output
+    let block = ''; // Variable to store the current block of characters
+
     timestampedTextList.forEach(({ timestamp, text }) => {
         const maskedLink = createTwitchLink(baseUrl, timestamp, text);
-        console.log(maskedLink);
+
+        // Check if adding the masked link exceeds 2000 characters
+        if ((block + maskedLink).length > 2000) {
+            // If it exceeds, print the current block
+            console.log(output);
+            // Reset the block and output for the next block
+            block = '';
+            output = '';
+        }
+        
+        // Add the masked link to the current block
+        block += maskedLink + '\n';
+        output += maskedLink + '\n'; // Also add to the complete output
     });
+
+    console.log(output); // Print the remaining output
 }
 
 // Read input from the command line
